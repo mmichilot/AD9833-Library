@@ -77,7 +77,7 @@ void AD9833::begin(float freq0, float phase0,
   
   // reset
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, (1 << 9)); 
+  write16(CTRL, RESET); 
   SPI.endTransaction();
 
   frequency(_freq0, _curFreqReg);
@@ -92,31 +92,31 @@ void AD9833::begin(float freq0, float phase0,
 /*!
  * @brief Sets the frequency
  * @param freq
- *        Frequency to set
+ *        Frequency to set in Hz
  * @param freqReg
  *        Optional frequency register to write to. 
  *        Defaults to FREQ0
  */
-void AD9833::frequency(uint32_t freq, uint8_t freqReg) {
+void AD9833::frequency(float freq, uint8_t freqReg) {
   uint32_t data;
   uint16_t lsb14;
   uint16_t msb14;
   
-  // Don't change freq if its greater than the MCLK freq
-  if (freq > _mclk){
+  // Don't change freq if freq > MCLK or freq < 0
+  if (freq > _mclk || freq < 0){
     return;
   }
 
   // Calulate the value to store
-  data = calcFreqReg(freq);
+  data = FREQ_TO_REG(freq);
 
   // Split into lower 14 and upper 14 bits
-  lsb14 = data & 0x03FFF;
-  msb14 = (data >> 14) & 0x3FFF;
+  lsb14 = data & MASK_14;
+  msb14 = (data >> 14) & MASK_14;
 
   // Write to registers
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, (1 << 13));
+  write16(CTRL, B28);
   write16(freqReg, lsb14);
   write16(freqReg, msb14);
   SPI.endTransaction();
@@ -125,24 +125,29 @@ void AD9833::frequency(uint32_t freq, uint8_t freqReg) {
 /*!
  * @brief Sets the phase
  * @param freq
- *        Frequency to set
+ *        Phase to set in degrees
  * @param freqReg
  *        Optional phase register to write to. 
  *        Defaults to PHASE0
  */
-void AD9833::phase(uint32_t phase, uint8_t phaseReg) {
-  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(phaseReg, (phase & 0x0FFF));
-  SPI.endTransaction();
-}
+void AD9833::phase(float phase, uint8_t phaseReg) {
+  float rad;
+  uint16_t data;
+  
+  // Don't change if phase if phase > 360 or phase < 0
+  if (phase > 360 || phase < 0) {
+    return;
+  }
 
-/*!
- * @brief Calculates the value to store into a frequency register
- * @param freq
- *        Frequency value to be converted
- */
-uint32_t AD9833::calcFreqReg(uint32_t freq) {
-  return ((float)freq / (float)_mclk) * 268435456;
+  // Change degrees to radians
+  rad = DEG_TO_RAD(phase);
+
+  // Calculate register value
+  data = PHASE_TO_REG(rad);
+  
+  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
+  write16(phaseReg, (data & MASK_12));
+  SPI.endTransaction();
 }
 
 void AD9833::write16(uint8_t reg, uint16_t data) {
