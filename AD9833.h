@@ -31,14 +31,13 @@
   public:
     AD9833(uint8_t fsync, uint32_t spiFreq = SPI_FREQ,
             uint32_t mclk = MCLK_FREQ);
-    void begin(uint32_t freq0 = 0, uint32_t phase0 = 0, 
-                uint32_t freq1 = 0, uint32_t phase1 = 0);
-    void frequency(uint32_t freq, uint8_t freqReg = FREQ0);
-    void phase(uint32_t phase, uint8_t phaseReg = PHASE0);
+    void begin(float freq0 = 0, float phase0 = 0, 
+                float freq1 = 0, float phase1 = 0);
+    void frequency(float freq, uint8_t freqReg = FREQ0);
+    void phase(float phase, uint8_t phaseReg = PHASE0);
     
   private:
     void write16(uint8_t reg, uint16_t data);
-    uint32_t calcFreqReg(uint32_t freq);
 
     uint32_t _mclk, _spiFreq;
     uint8_t _fsync;
@@ -47,7 +46,7 @@
     uint8_t _curFreqReg, _curPhaseReg;
 
     // Keep track of freq and phase values
-    uint32_t _freq0, _freq1, _phase0, _phase1;
+    float _freq0, _freq1, _phase0, _phase1;
 
  };
 
