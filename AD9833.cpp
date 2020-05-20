@@ -9,6 +9,22 @@
 #include <SPI.h>
 #include "AD9833.h"
 
+#define MAX_12BIT 0xFFF
+#define MAX_28BIT 0xFFFFFFF
+
+/* Commonly used math calculations macros*/
+#define FREQ_TO_REG(freq) (freq/_mclk) * MAX_28BIT
+#define PHASE_TO_REG(rad) (rad*MAX_12BIT) / (2*PI)
+#define DEG_TO_RAD(deg) (deg/180) * PI
+
+/* Bit masks */
+#define MASK_12 0xFFF
+#define MASK_14 0x3FFF
+
+/* Control bits */
+#define RESET (1 << 9)
+#define B28 (1 << 13)
+
 /*!
  * @brief Instantiates a new AD9833 class
  * @param fsync
