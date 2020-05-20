@@ -8,7 +8,7 @@ begin() - Initializes the AD9833 by resetting it. By default it will initialize 
 
 frequency(uint32_t freq) - Sets the frequency.  By default it will write to the FREQ0 register, but a second argument can be passed to specify which frequency register to write to.
 
-phase() - Sets the phase.  By default it will write to the PHASE0 register, but a second argument can be passed to specify which phase register to write to. 
+phase(uint32_t phase) - Sets the phase.  By default it will write to the PHASE0 register, but a second argument can be passed to specify which phase register to write to. 
 
 # In-progress
 switchFreq() - switches the frequency register
