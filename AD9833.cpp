@@ -59,8 +59,8 @@ AD9833::AD9833(uint8_t fsync, uint32_t spiFreq, uint32_t mclk) {
   *        Optionally initialize PHASE1. 
   *        Defaults to 0
   */
-void AD9833::begin(uint32_t freq0, uint32_t phase0, 
-                    uint32_t freq1, uint32_t phase1) {
+void AD9833::begin(float freq0, float phase0, 
+                    float freq1, float phase1) {
   _freq0 = freq0;
   _freq1 = freq1;
   _phase0 = phase0;
