@@ -17,9 +17,12 @@
 #define PHASE1 0x7
 
 /* Control bits */
+#define MODE(mode) (mode << 1)
+#define DIV2 (1 << 3)
+#define OPBITEN (1 << 5)
+#define RESET (1 << 8)
 #define PSELECT(reg) (reg << 10)
 #define FSELECT(reg) (reg << 11)
-#define RESET (1 << 9)
 #define HLB (1 << 12)
 #define B28 (1 << 13)
 
