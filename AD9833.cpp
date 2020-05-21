@@ -24,13 +24,6 @@
 #define LSB_14(val) (val & BIT_MASK_14)
 #define MSB_14(val) ((val >> 14) & BIT_MASK_14)
 
-/* Since we are using 8-bit values to keep track of what
- *  two frequency and phase registers are in use, we only
- *  care about the first bit.
- */
-#define GET_FREQ_REG(freqReg) freqReg & BIT_MASK_1
-#define GET_PHASE_REG(phaseReg) phaseReg & BIT_MASK_1
-
 /*!
  * @brief Instantiates a new AD9833 class
  * @param fsync
