@@ -45,25 +45,8 @@ AD9833::AD9833(uint8_t fsync, uint32_t spiFreq, uint32_t mclk) {
  /*!
   * @brief Setup fsync pin and initialize AD9833.
   *        The device will use FREQ0 when it's finish initializing.
-  * @param freq0
-  *        Optionally initialize FREQ0.
-  *        Defaults to 0
-  * @param phase0
-  *        Optionally initialize PHASE0.
-  *        Defaults to 0
-  * @param freq1
-  *        Optionally initialize FREQ1.
-  *        Defaults to 0
-  * @param phase1
-  *        Optionally initialize PHASE1.
-  *        Defaults to 0
   */
-void AD9833::begin(float freq0, float phase0,
-                    float freq1, float phase1) {
-
-  _curFreqReg = 0;
-  _curPhaseReg = 0;
-
+void AD9833::begin() {
   // set up fsync
   pinMode(_fsync, OUTPUT);
   digitalWrite(_fsync, HIGH);
@@ -72,18 +55,21 @@ void AD9833::begin(float freq0, float phase0,
   // enable reset
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, RESET);
-  SPI.endTransaction();
 
-  // initialize FREQ0 and PHASE0 registers
-  frequency(freq0, FREQ0);
-  phase(phase0, PHASE0);
+  // clear FREQ0 and FREQ1
+  write16(CTRL, B28);
+  write16(FREQ0, 0x00);
+  write16(FREQ0, 0x00);
 
-  // initialize FREQ1 and PHASE1 registers
-  frequency(freq1, FREQ1);
-  phase(phase1, PHASE1);
+  write16(CTRL, B28);
+  write16(FREQ1, 0x00);
+  write16(FREQ1, 0x00);
+
+  // clear PHASE0 and PHASE1
+  write16(PHASE0, 0x00);
+  write16(PHASE1, 0x00);
 
   // disable reset
-  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, 0x00);
   SPI.endTransaction();
 }
