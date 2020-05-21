@@ -13,17 +13,23 @@
 #define MAX_28BIT 0xFFFFFFF
 
 /* Commonly used math calculations macros*/
-#define FREQ_TO_REG(freq) (freq/_mclk) * MAX_28BIT
-#define PHASE_TO_REG(rad) (rad*MAX_12BIT) / (2*PI)
-#define DEG_TO_RAD(deg) (deg/180) * PI
+#define FREQ_TO_REG(freq) ((freq/_mclk) * MAX_28BIT)
+#define PHASE_TO_REG(rad) ((rad*MAX_12BIT) / (2*PI))
 
 /* Bit masks */
-#define MASK_12 0xFFF
-#define MASK_14 0x3FFF
+#define BIT_MASK_1 0x1
+#define BIT_MASK_12 0xFFF
+#define BIT_MASK_14 0x3FFF
 
-/* Control bits */
-#define RESET (1 << 9)
-#define B28 (1 << 13)
+#define LSB_14(val) (val & BIT_MASK_14)
+#define MSB_14(val) ((val >> 14) & BIT_MASK_14)
+
+/* Since we are using 8-bit values to keep track of what
+ *  two frequency and phase registers are in use, we only 
+ *  care about the first bit.
+ */
+#define GET_FREQ_REG(freqReg) freqReg & BIT_MASK_1
+#define GET_PHASE_REG(phaseReg) phaseReg & BIT_MASK_1
 
 /*!
  * @brief Instantiates a new AD9833 class
