@@ -16,12 +16,18 @@
 #define PHASE0 0x6
 #define PHASE1 0x7
 
+/* Control bits */
+#define PSELECT(reg) (reg << 10)
+#define FSELECT(reg) (reg << 11)
+#define RESET (1 << 9)
+#define HLB (1 << 12)
+#define B28 (1 << 13)
+
 /* Default SPI frequency: 20 MHz*/
 #define SPI_FREQ 20000000
 #define SPI_SETTINGS(rate) SPISettings(rate, MSBFIRST, SPI_MODE2)
 
 #define MCLK_FREQ 25000000
-
 
 /*!
  * @brief Class that stores state and functions for AD9833
@@ -35,6 +41,8 @@
                 float freq1 = 0, float phase1 = 0);
     void frequency(float freq, uint8_t freqReg = FREQ0);
     void phase(float phase, uint8_t phaseReg = PHASE0);
+    void switchFrequency();
+    void switchPhase();
     
   private:
     void write16(uint8_t reg, uint16_t data);
@@ -45,8 +53,9 @@
     // Keep track of which freq and phase register is in use
     uint8_t _curFreqReg, _curPhaseReg;
 
-    // Keep track of freq and phase values
-    float _freq0, _freq1, _phase0, _phase1;
+    // Keep track of freq and phase valuesas stored in the registers
+    uint32_t _freq0, _freq1;
+    uint16_t _phase0, _phase1;
 
  };
 
