@@ -10,11 +10,10 @@ frequency(uint32_t freq) - Sets the frequency.  By default it will write to the 
 
 phase(uint32_t phase) - Sets the phase.  By default it will write to the PHASE0 register, but a second argument can be passed to specify which phase register to write to. 
 
-# In-progress
-switchFreq() - switches the frequency register
+switchFrequency() - switches the frequency register
 
 switchPhase() - switches the phase register
 
-The ability to change the type of waveform (square, triangle, etc...). 
+# In-progress
 
-I want to also make the frequency register writes more efficient. Right now two writes are always being used in order to write, but I want to make it so that only two writes would be needed if all 28 bits are changed, otherwise only write the appropriate lower or upper bits.
+The ability to change the type of waveform (square, triangle, etc...). 
