@@ -39,7 +39,6 @@ AD9833::AD9833(uint8_t fsync, uint32_t spiFreq, uint32_t mclk) {
   _fsync = fsync;
   _spiFreq = spiFreq;
   _mclk = mclk;
-
  }
 
  /*!
