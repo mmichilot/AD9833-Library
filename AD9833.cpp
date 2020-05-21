@@ -170,12 +170,44 @@ void AD9833::switchFrequency() {
  */
 void AD9833::switchPhase() {
   // switch the current frequency register
-  _curPhaseReg = ~GET_PHASE_REG(_curPhaseReg);
+  _curPhaseReg ^= _curPhaseReg;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, (PSELECT(_curPhaseReg)));
   SPI.endTransaction();
 }
+
+/*!
+ * @brief Set the waveform for VOUT
+ * @param state
+ *        Waveform to set
+ */
+ void AD9833::setWaveform(Waveform state) {
+  if (state == _curWave) {
+    return;
+  }
+
+  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
+  
+  switch(state) {
+    case SINE:
+      write16(CTRL, MODE(SINE));
+      break;
+    case TRIANGLE:
+      write16(CTRL, MODE(TRIANGLE));
+      break;
+    case SQUARE_DIV2:
+      write16(CTRL, OPBITEN);
+      break;
+    case SQUARE:
+      write16(CTRL, OPBITEN | DIV2);
+      break;
+  }
+
+  _curWave = state;
+
+  SPI.endTransaction();
+ }
 
 /*!
  * @brief Writes 16 bits via SPI
