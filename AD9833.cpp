@@ -162,16 +162,49 @@ void AD9833::phase(float phase, uint8_t phaseReg) {
   }
 
   // Change degrees to radians
-  rad = DEG_TO_RAD(phase);
+  rad = DEG_TO_RAD * phase;
 
   // Calculate register value
   data = PHASE_TO_REG(rad);
   
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(phaseReg, (data & MASK_12));
+  write16(phaseReg, (data & BIT_MASK_12));
+  SPI.endTransaction();
+
+  (phaseReg == PHASE0) ? _phase0 = data : _phase1 = data;
+}
+
+/*!
+ * @brief Switches the frequency register
+ */
+void AD9833::switchFrequency() {
+  // switch the current frequency register
+  _curFreqReg = ~GET_FREQ_REG(_curFreqReg);
+  
+  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
+  write16(CTRL, (FSELECT(_curFreqReg)));
   SPI.endTransaction();
 }
 
+/*!
+ * @brief Switches the phase register
+ */
+void AD9833::switchPhase() {
+  // switch the current frequency register
+  _curPhaseReg = ~GET_PHASE_REG(_curPhaseReg);
+  
+  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
+  write16(CTRL, (PSELECT(_curPhaseReg)));
+  SPI.endTransaction();
+}
+
+/*!
+ * @brief Writes 16 bits via SPI
+ * @param reg
+ *        register to write to
+ * @param data
+ *        data to write to register
+ */
 void AD9833::write16(uint8_t reg, uint16_t data) {
   digitalWrite(_fsync, LOW);
   SPI.transfer16((reg << 13) | data);
