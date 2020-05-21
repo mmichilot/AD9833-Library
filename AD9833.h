@@ -32,6 +32,14 @@
 
 #define MCLK_FREQ 25000000
 
+/* Waveform states */
+enum Waveform {
+  SINE=0,
+  TRIANGLE,
+  SQUARE_DIV2, // Divides the frequency of the square wave by 2
+  SQUARE
+};
+
 /*!
  * @brief Class that stores state and functions for AD9833
  */
