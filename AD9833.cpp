@@ -74,12 +74,21 @@ void AD9833::begin() {
 }
 
 /*!
+ * @brief Wrapper function that allows the currently
+ *        selected frequency register to be used.
+ * @param freq
+ *        Frequency to set in Hz
+ */
+void AD9833::frequency(float f) {
+  frequency(f, FREQ_ADDR(_curFreqReg));
+}
+
+/*!
  * @brief Sets the frequency
  * @param freq
  *        Frequency to set in Hz
  * @param freqReg
- *        Optional frequency register to write to.
- *        Defaults to FREQ0
+ *        Specify frequency register to write to.
  */
 void AD9833::frequency(float freq, uint8_t freqReg) {
 
@@ -123,12 +132,21 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
 }
 
 /*!
+ * @brief Wrapper function that allows the currently
+ *        selected frequency register to be used.
+ * @param phase
+ *        Frequency to set in Hz
+ */
+void AD9833::phase(float p) {
+  phase(p, PHASE_ADDR(_curPhaseReg));
+}
+
+/*!
  * @brief Sets the phase
- * @param freq
+ * @param phase
  *        Phase to set in degrees
- * @param freqReg
- *        Optional phase register to write to.
- *        Defaults to PHASE0
+ * @param phaseReg
+ *        Specift the phase register to write to.
  */
 void AD9833::phase(float phase, uint8_t phaseReg) {
   float rad;

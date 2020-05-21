@@ -54,8 +54,10 @@ enum Waveform {
     AD9833(uint8_t fsync, uint32_t spiFreq = SPI_FREQ,
             uint32_t mclk = MCLK_FREQ);
     void begin();
-    void frequency(float freq, uint8_t freqReg = FREQ0);
-    void phase(float phase, uint8_t phaseReg = PHASE0);
+    void frequency(float f);
+    void frequency(float freq, uint8_t freqReg);
+    void phase(float p);
+    void phase(float phase, uint8_t phaseReg);
     void switchFrequency();
     void switchPhase();
     void setWaveform(Waveform state);
