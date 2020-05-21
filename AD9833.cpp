@@ -175,7 +175,7 @@ void AD9833::phase(float phase, uint8_t phaseReg) {
  */
 void AD9833::switchFrequency() {
   // switch the current frequency register
-  _curFreqReg ^= _curFreqReg;
+  _curFreqReg = _curFreqReg ^ 1;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, (FSELECT(_curFreqReg)));
@@ -187,7 +187,7 @@ void AD9833::switchFrequency() {
  */
 void AD9833::switchPhase() {
   // switch the current frequency register
-  _curPhaseReg ^= _curPhaseReg;
+  _curPhaseReg = _curPhaseReg ^ 1;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, (PSELECT(_curPhaseReg)));
