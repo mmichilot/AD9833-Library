@@ -61,12 +61,15 @@ enum Waveform {
     uint32_t _mclk, _spiFreq;
     uint8_t _fsync;
 
-    // Keep track of which freq and phase register is in use
-    uint8_t _curFreqReg, _curPhaseReg;
+    // Keep track of the current waveform
+    uint8_t _curWave;
 
-    // Keep track of freq and phase valuesas stored in the registers
-    uint32_t _freq0, _freq1;
-    uint16_t _phase0, _phase1;
+    // Keep track of which freq and phase register is in use
+    uint8_t _curFreqReg = 0, _curPhaseReg = 0;
+
+    // Keep track of freq and phase values as stored in the registers
+    uint32_t _freq[2] = {0};
+    uint16_t _phase[2] = {0};
 
  };
 
