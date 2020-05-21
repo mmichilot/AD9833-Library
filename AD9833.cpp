@@ -86,7 +86,7 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
 
   // Register values
   uint32_t newFreq = FREQ_TO_REG(freq);
-  uint32_t oldFreq = (freqReg == FREQ0) ? _freq0 : _freq1;
+  uint32_t oldFreq = _freq[_curFreqReg];
 
   // Don't change frequency if freq > MCLK or freq < 0
   if (freq > _mclk || freq < 0){
@@ -112,14 +112,14 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
   }
   else {
     write16(CTRL, B28); // Write full 28-bits
-    write16(freqReg, LSB_14(newFreq));
     write16(freqReg, MSB_14(newFreq));
+    write16(freqReg, LSB_14(newFreq));
   }
 
   SPI.endTransaction();
 
   // Store the new frequency
-  (freqReg == FREQ0) ? _freq0 = newFreq : _freq1 = newFreq;
+  _freq[_curFreqReg] = newFreq;
 
 }
 
@@ -133,7 +133,7 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
  */
 void AD9833::phase(float phase, uint8_t phaseReg) {
   float rad;
-  uint16_t data;
+  uint16_t newPhase;
 
   // Don't change if phase if phase > 360 or phase < 0
   if (phase > 360 || phase < 0) {
@@ -144,13 +144,13 @@ void AD9833::phase(float phase, uint8_t phaseReg) {
   rad = DEG_TO_RAD * phase;
 
   // Calculate register value
-  data = PHASE_TO_REG(rad);
+  newPhase = PHASE_TO_REG(rad);
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(phaseReg, (data & BIT_MASK_12));
+  write16(phaseReg, (newPhase & BIT_MASK_12));
   SPI.endTransaction();
 
-  (phaseReg == PHASE0) ? _phase0 = data : _phase1 = data;
+  _phase[_curPhaseReg] = newPhase;
 }
 
 /*!
@@ -158,7 +158,7 @@ void AD9833::phase(float phase, uint8_t phaseReg) {
  */
 void AD9833::switchFrequency() {
   // switch the current frequency register
-  _curFreqReg = ~GET_FREQ_REG(_curFreqReg);
+  _curFreqReg ^= _curFreqReg;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, (FSELECT(_curFreqReg)));
