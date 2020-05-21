@@ -13,8 +13,13 @@
 #define CTRL 0x0
 #define FREQ0 0x2
 #define FREQ1 0x4
+// Selects the proper freq register address
+#define FREQ_ADDR(sel) (sel ? FREQ1 : FREQ0)
+
 #define PHASE0 0x6
 #define PHASE1 0x7
+// Selects the proper phase register address
+#define PHASE_ADDR(sel) (sel ? PHASE1 : PHASE0)
 
 /* Control bits */
 #define MODE(mode) (mode << 1)
