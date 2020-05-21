@@ -104,28 +104,44 @@ void AD9833::begin(float freq0, float phase0,
  *        Defaults to FREQ0
  */
 void AD9833::frequency(float freq, uint8_t freqReg) {
-  uint32_t data;
-  uint16_t lsb14;
-  uint16_t msb14;
+
+  // Register values
+  uint32_t newFreq = FREQ_TO_REG(freq);
+  uint32_t oldFreq = (freqReg == FREQ0) ? _freq0 : _freq1;
   
-  // Don't change freq if freq > MCLK or freq < 0
+  // Don't change frequency if freq > MCLK or freq < 0
   if (freq > _mclk || freq < 0){
     return;
   }
 
-  // Calulate the value to store
-  data = FREQ_TO_REG(freq);
+  // Don't change frequency if it's the same
+  if (newFreq == oldFreq) {
+    return;
+  }
 
-  // Split into lower 14 and upper 14 bits
-  lsb14 = data & MASK_14;
-  msb14 = (data >> 14) & MASK_14;
-
-  // Write to registers
+  // Get SPI ready
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, B28);
-  write16(freqReg, lsb14);
-  write16(freqReg, msb14);
+
+  // Compare upper and lower 14 bits
+  if (MSB_14(newFreq) == MSB_14(oldFreq)) {
+    write16(CTRL, 0x00); // Only write lower 14 bits
+    write16(freqReg, LSB_14(newFreq));
+  }
+  else if (LSB_14(newFreq) == LSB_14(oldFreq)) {
+    write16(CTRL, HLB); // Only write upper 14 bits
+    write16(freqReg, MSB_14(newFreq));
+  }
+  else {
+    write16(CTRL, B28); // Write full 28-bits
+    write16(freqReg, LSB_14(newFreq));
+    write16(freqReg, MSB_14(newFreq));
+  }
+  
   SPI.endTransaction();
+
+  // Store the new frequency
+  (freqReg == FREQ0) ? _freq0 = newFreq : _freq1 = newFreq;
+
 }
 
 /*!
