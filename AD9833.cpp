@@ -67,29 +67,29 @@ AD9833::AD9833(uint8_t fsync, uint32_t spiFreq, uint32_t mclk) {
   */
 void AD9833::begin(float freq0, float phase0, 
                     float freq1, float phase1) {
-  _freq0 = freq0;
-  _freq1 = freq1;
-  _phase0 = phase0;
-  _phase1 - phase1;
 
-  _curFreqReg = FREQ0;
-  _curPhaseReg = PHASE0;
+  _curFreqReg = 0;
+  _curPhaseReg = 0;
   
   // set up fsync
   pinMode(_fsync, OUTPUT);
   digitalWrite(_fsync, HIGH);
 
-  // AD9833 initialization
-  
-  // reset
+  /* AD9833 initialization */
+  // enable reset
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, RESET); 
   SPI.endTransaction();
 
-  frequency(_freq0, _curFreqReg);
-  phase(_phase0, _curPhaseReg);
+  // initialize FREQ0 and PHASE0 registers
+  frequency(freq0, FREQ0);
+  phase(phase0, PHASE0);
 
-  // remove reset
+  // initialize FREQ1 and PHASE1 registers
+  frequency(freq1, FREQ1);
+  phase(phase1, PHASE1);
+
+  // disable reset
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(CTRL, 0x00);
   SPI.endTransaction();
