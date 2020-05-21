@@ -1,8 +1,8 @@
 /*!
  * @file AD9833.h
- * 
+ *
  * This is a library for the AD9833 Programmable Waveform Generator
- * 
+ *
  * Written by Matthew Michilot
  */
 
@@ -37,13 +37,13 @@
   public:
     AD9833(uint8_t fsync, uint32_t spiFreq = SPI_FREQ,
             uint32_t mclk = MCLK_FREQ);
-    void begin(float freq0 = 0, float phase0 = 0, 
+    void begin(float freq0 = 0, float phase0 = 0,
                 float freq1 = 0, float phase1 = 0);
     void frequency(float freq, uint8_t freqReg = FREQ0);
     void phase(float phase, uint8_t phaseReg = PHASE0);
     void switchFrequency();
     void switchPhase();
-    
+
   private:
     void write16(uint8_t reg, uint16_t data);
 
