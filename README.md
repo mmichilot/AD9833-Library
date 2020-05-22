@@ -14,9 +14,13 @@ These chips use SPI to communicate so 3 pins are required to interface.
 | MOSI (D11)  |   SDATA    |
 | SCLK (D13)  |   SCLK     | 
 
-This library will **NOT** setup and configure SPI, that is the user's responsibility. All this library needs to know is which pin is connected to FSYNC.
+This library will **NOT** setup and configure SPI, that is the user's responsibility. All this library needs to know is which pin is connected to FSYNC. Check out the example to get started.
 
 For more information about this library please visit
 https://mmichilot.github.io/AD9833-Library
 
 Written by Matthew Michilot
+
+# Installation
+
+To download. click the **Clone or Download** button and select **Download ZIP**. 
