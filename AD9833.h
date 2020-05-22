@@ -6,28 +6,23 @@
  * Written by Matthew Michilot
  */
 
- #ifndef AD9833_h
- #define AD9833_h
+#ifndef AD9833_h
+#define AD9833_h
 
-/* Registers */
-#define CTRL 0x0
-#define FREQ0 0x2
-#define FREQ1 0x4
-// Selects the proper freq register address
-#define FREQ_ADDR(sel) (sel ? FREQ1 : FREQ0)
+/* Default SPI frequency: 20 MHz */
+#define SPI_FREQ 20000000
+#define SPI_SETTINGS(rate) SPISettings(rate, MSBFIRST, SPI_MODE2)
 
-#define PHASE0 0x6
-#define PHASE1 0x7
-// Selects the proper phase register address
-#define PHASE_ADDR(sel) (sel ? PHASE1 : PHASE0)
+/* MCLK frequency 25 MHz */
+#define MCLK_FREQ 25000000
 
-/* Control bits */
-#define MODE(mode) (mode << 1)
+ /* Control bits */
+#define MODE (1 << 1)
 #define DIV2 (1 << 3)
 #define OPBITEN (1 << 5)
 #define RESET (1 << 8)
-#define PSELECT(reg) (reg << 10)
-#define FSELECT(reg) (reg << 11)
+#define PSELECT (1 << 10)
+#define FSELECT (1 << 11)
 #define HLB (1 << 12)
 #define B28 (1 << 13)
 
@@ -74,7 +69,7 @@ enum Waveform {
   SINE=0,
   TRIANGLE,
   SQUARE_DIV2, // Divides the frequency of the square wave by 2
-  SQUARE
+  SQUARE,
 };
 
 /*!

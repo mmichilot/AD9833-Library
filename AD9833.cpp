@@ -9,18 +9,17 @@
 #include <SPI.h>
 #include "AD9833.h"
 
-#define MAX_12BIT 0xFFF
-#define MAX_28BIT 0xFFFFFFF
+/* Constants */
+#define MAX_12BIT 4096
+#define MAX_28BIT 268435456
 
 /* Commonly used math calculations macros*/
 #define FREQ_TO_REG(freq) ((freq/_mclk) * MAX_28BIT)
 #define PHASE_TO_REG(rad) ((rad*MAX_12BIT) / (2*PI))
 
 /* Bit masks */
-#define BIT_MASK_1 0x1
 #define BIT_MASK_12 0xFFF
 #define BIT_MASK_14 0x3FFF
-
 #define LSB_14(val) (val & BIT_MASK_14)
 #define MSB_14(val) ((val >> 14) & BIT_MASK_14)
 
@@ -43,7 +42,7 @@ AD9833::AD9833(uint8_t fsync, uint32_t spiFreq, uint32_t mclk) {
 
  /*!
   * @brief Setup fsync pin and initialize AD9833.
-  *        The device will use FREQ0 when it's finish initializing.
+  *        The device will use FREQ0 when it's initialized
   */
 void AD9833::begin() {
   // set up fsync
@@ -51,31 +50,33 @@ void AD9833::begin() {
   digitalWrite(_fsync, HIGH);
 
   /* AD9833 initialization */
-  // enable reset
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, RESET);
+
+  // enable reset
+  write16(CTRL_ADDR, RESET);
 
   // clear FREQ0 and FREQ1
-  write16(CTRL, B28);
-  write16(FREQ0, 0x00);
-  write16(FREQ0, 0x00);
+  write16(CTRL_ADDR, B28);
+  write16(FREQ0_ADDR, 0x00);
+  write16(FREQ0_ADDR, 0x00);
 
-  write16(CTRL, B28);
-  write16(FREQ1, 0x00);
-  write16(FREQ1, 0x00);
+  write16(CTRL_ADDR, B28);
+  write16(FREQ1_ADDR, 0x00);
+  write16(FREQ1_ADDR, 0x00);
 
   // clear PHASE0 and PHASE1
-  write16(PHASE0, 0x00);
-  write16(PHASE1, 0x00);
+  write16(PHASE0_ADDR, 0x00);
+  write16(PHASE1_ADDR, 0x00);
 
   // disable reset
-  write16(CTRL, 0x00);
+  write16(CTRL_ADDR, !RESET);
+
   SPI.endTransaction();
 }
 
 /*!
- * @brief Wrapper function that allows the currently
- *        selected frequency register to be used.
+ * @brief Wrapper function that allows the frequency register
+ *        in use to be modified.
  * @param freq
  *        Frequency to set in Hz
  */
@@ -84,11 +85,11 @@ void AD9833::setFrequency(float freq) {
 }
 
 /*!
- * @brief Sets the frequency
+ * @brief Sets the frequency for a specific register
  * @param freq
  *        Frequency to set in Hz
- * @param freqReg
- *        Specify frequency register to write to.
+ * @param reg
+ *        Frequency register to change
  */
 void AD9833::setFrequency(float freq, enum RegisterName reg) {
   uint32_t oldFreq = _registers[reg].data32;
@@ -140,21 +141,21 @@ void AD9833::setFrequency(float freq, enum RegisterName reg) {
 }
 
 /*!
- * @brief Wrapper function that allows the currently
- *        selected frequency register to be used.
+ * @brief Wrapper function that allows the phase register in use
+ *        to be modified.
  * @param phase
- *        Frequency to set in Hz
+ *        Phase to set in degrees
  */
 void AD9833::setPhase(float phase) {
   setPhase(phase, (_registers[CTRL].data16 & PSELECT) ? PHASE1 : PHASE0);
 }
 
 /*!
- * @brief Sets the phase
+ * @brief Sets the phase for a specific register
  * @param phase
  *        Phase to set in degrees
  * @param phaseReg
- *        Specift the phase register to write to.
+ *        Specift the phase register to modify
  */
 void AD9833::setPhase(float phase, enum RegisterName reg) {
   float rad;
@@ -162,15 +163,17 @@ void AD9833::setPhase(float phase, enum RegisterName reg) {
   uint16_t newPhase;
 
   // Don't change if phase if phase > 360 or phase < 0
-  if (phase > 360 || phase < 0) {
+  if (phase > 360 || phase < 0)
     return;
-  }
 
   // Change degrees to radians
   rad = DEG_TO_RAD * phase;
 
   // Calculate register value
   newPhase = PHASE_TO_REG(rad);
+
+  if (newPhase == oldPhase)
+    return;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
   write16(_registers[reg].addr, (newPhase & BIT_MASK_12));
@@ -180,7 +183,8 @@ void AD9833::setPhase(float phase, enum RegisterName reg) {
 }
 
 /*!
- * @brief Switches the frequency register
+ * @brief Toggles between FREQ0 and FREQ1 for the currently
+ *        selected frequency register
  */
 void AD9833::toggleFreqReg() {
   // toggle FSELECT
@@ -192,7 +196,8 @@ void AD9833::toggleFreqReg() {
 }
 
 /*!
- * @brief Switches the phase register
+ * @brief Toogles between PHASE0 and PHASE1 for the
+ *        currently selected phase register
  */
 void AD9833::togglePhaseReg() {
   // toggle PSELECT
@@ -204,7 +209,7 @@ void AD9833::togglePhaseReg() {
 }
 
 /*!
- * @brief Set the waveform for VOUT
+ * @brief Set the waveform to output
  * @param state
  *        Waveform to set
  */
