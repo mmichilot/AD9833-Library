@@ -155,7 +155,7 @@ void AD9833::setPhase(float phase) {
  * @param phase
  *        Phase to set in degrees
  * @param phaseReg
- *        Specift the phase register to modify
+ *        Specify the phase register to modify
  */
 void AD9833::setPhase(float phase, enum RegisterName reg) {
   float rad;
