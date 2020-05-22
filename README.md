@@ -33,4 +33,4 @@ This line is added to the sketch:
 ```c
 #include <AD9833.h>
 ```
-With that line, the library functions are now available for use!
+With that line, the library's functions are now available for use!
