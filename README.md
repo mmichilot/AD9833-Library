@@ -1,19 +1,22 @@
-# AD9833 Library
-An AD9833 Library for the Arduino. There are pre-existing libraries out there, but I wanted to try my hand at making my own library. This library will eventually become a stepping stone to building some of my own lab equipment, such as a waveform generator and spectrum analyzer.
+# AD9833 Library for Arduino
 
-# Functions
-AD9833(uint8_t fsync) - Specify which pin is connected to fsync. Also has the option to set your own SPI and MCLK frequency. Check out the code for defaults
+This library allows an Arduino board to control an AD9833 Programmable Waveform Generator.
 
-begin() - Initializes the AD9833 by resetting it. By default it will initialize all registers to 0, however the frequency and phase registers can be initialized to a value other than 0. 
+Designed primarily to work with an AD9833 Breakout like the one below:
 
-frequency(uint32_t freq) - Sets the frequency.  By default it will write to the FREQ0 register, but a second argument can be passed to specify which frequency register to write to.
+<img src="https://abra-electronics.com/images/detailed/143/MOD-AD9833-_3_.jpg" width="100" height="100">
 
-phase(uint32_t phase) - Sets the phase.  By default it will write to the PHASE0 register, but a second argument can be passed to specify which phase register to write to. 
+These chips use SPI to communicate so 3 pins are required to interface.
 
-switchFrequency() - switches the frequency register
+| Arduino Pin | AD9833 Pin |
+| ----------- | ---------- |
+| Any         |   FSYNC    |
+| MOSI (D11)  |   SDATA    |
+| SCLK (D13)  |   SCLK     | 
 
-switchPhase() - switches the phase register
+This library will **NOT** setup and configure SPI, that is the user's responsibility. All this library needs to know is which pin is connected to FSYNC.
 
-# In-progress
+For more information about this library please visit
+https://mmichilot.github.io/AD9833-Library
 
-The ability to change the type of waveform (square, triangle, etc...). 
+Written by Matthew Michilot
