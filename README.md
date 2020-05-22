@@ -23,4 +23,14 @@ Written by Matthew Michilot
 
 # Installation
 
-To download. click the **Clone or Download** button and select **Download ZIP**. 
+To download, click the **Clone or Download** button and select **Download ZIP**. 
+
+Open the Arduino IDE and select *Sketch* > *Include Library* > *Add .ZIP Library...* and navigate to the downloaded zip file. Now the library should be added. 
+
+To include it in your sketch, select *Sketch* and select *AD9833* under **Contributed libraries**.
+ 
+This line is added to the sketch:
+```c
+#include <AD9833.h>
+```
+With that line, the library functions are now available for use!
