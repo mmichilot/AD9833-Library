@@ -155,7 +155,7 @@ void AD9833::setPhase(float phase) {
  * @param phase
  *        Phase to set in degrees
  * @param phaseReg
- *        Specify the phase register to modify
+ *        Phase register to change
  */
 void AD9833::setPhase(float phase, enum RegisterName reg) {
   float rad;
@@ -186,7 +186,7 @@ void AD9833::setPhase(float phase, enum RegisterName reg) {
  * @brief Toggles between FREQ0 and FREQ1 for the currently
  *        selected frequency register
  */
-void AD9833::toggleFreqReg() {
+void AD9833::toggleFreq() {
   // toggle FSELECT
   _registers[CTRL].data16 ^= FSELECT;
 
@@ -199,7 +199,7 @@ void AD9833::toggleFreqReg() {
  * @brief Toogles between PHASE0 and PHASE1 for the
  *        currently selected phase register
  */
-void AD9833::togglePhaseReg() {
+void AD9833::togglePhase() {
   // toggle PSELECT
   _registers[CTRL].data16 ^= PSELECT;
 

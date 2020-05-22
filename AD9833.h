@@ -88,8 +88,8 @@ enum Waveform {
     void setPhase(float phase);
     void setPhase(float phase, enum RegisterName reg);
 
-    void toggleFreqReg();
-    void togglePhaseReg();
+    void toggleFreq();
+    void togglePhase();
 
     void setWaveform(Waveform state);
 
