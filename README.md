@@ -12,7 +12,7 @@ These chips use SPI to communicate so 3 pins are required to interface.
 | ----------- | ---------- |
 | Any         |   FSYNC    |
 | MOSI (D11)  |   SDATA    |
-| SCLK (D13)  |   SCLK     | 
+| SCLK (D13)  |   SCLK     |
 
 This library will **NOT** setup and configure SPI, that is the user's responsibility. All this library needs to know is which pin is connected to FSYNC. Check out the example to get started.
 
@@ -23,12 +23,12 @@ Written by Matthew Michilot
 
 # Installation
 
-To download, click the **Clone or Download** button and select **Download ZIP**. 
+To download, click the **Clone or Download** button and select **Download ZIP**.
 
-Open the Arduino IDE and select *Sketch* > *Include Library* > *Add .ZIP Library...* and navigate to the downloaded zip file. Now the library should be added. 
+Open the Arduino IDE and select *Sketch* > *Include Library* > *Add .ZIP Library...* and navigate to the downloaded zip file. Now the library should be added.
 
 To include it in your sketch, select *Sketch* and select *AD9833* under **Contributed libraries**.
- 
+
 This line is added to the sketch:
 ```c
 #include <AD9833.h>
