@@ -79,8 +79,8 @@ void AD9833::begin() {
  * @param freq
  *        Frequency to set in Hz
  */
-void AD9833::frequency(float f) {
-  frequency(f, FREQ_ADDR(_curFreqReg));
+void AD9833::setFrequency(float freq) {
+   setFrequency(freq, (_registers[CTRL].data16 & FSELECT) ? FREQ1 : FREQ0);
 }
 
 /*!
@@ -90,11 +90,10 @@ void AD9833::frequency(float f) {
  * @param freqReg
  *        Specify frequency register to write to.
  */
-void AD9833::frequency(float freq, uint8_t freqReg) {
-
-  // Register values
+void AD9833::setFrequency(float freq, enum RegisterName reg) {
+  uint32_t oldFreq = _registers[reg].data32;
   uint32_t newFreq = FREQ_TO_REG(freq);
-  uint32_t oldFreq = _freq[_curFreqReg];
+  uint16_t ctrlData = _registers[CTRL].data16;
 
   // Don't change frequency if freq > MCLK or freq < 0
   if (freq > _mclk || freq < 0){
@@ -102,7 +101,7 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
   }
 
   // Don't change frequency if it's the same
-  if (newFreq == oldFreq) {
+  if (newFreq == _registers[reg].data32) {
     return;
   }
 
@@ -111,23 +110,32 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
 
   // Compare upper and lower 14 bits
   if (MSB_14(newFreq) == MSB_14(oldFreq)) {
-    write16(CTRL, 0x00); // Only write lower 14 bits
-    write16(freqReg, LSB_14(newFreq));
+    /* Write the 14 LSB */
+    ctrlData &= ~HLB & ~B28;
+    write16(CTRL_ADDR, ctrlData);
+    write16(_registers[reg].addr, LSB_14(newFreq));
   }
   else if (LSB_14(newFreq) == LSB_14(oldFreq)) {
-    write16(CTRL, HLB); // Only write upper 14 bits
-    write16(freqReg, MSB_14(newFreq));
+    /* Write the 14 MSB */
+    ctrlData &= ~B28;
+    ctrlData |= HLB;
+    write16(CTRL_ADDR, ctrlData);
+    write16(_registers[reg].addr, MSB_14(newFreq));
   }
   else {
-    write16(CTRL, B28); // Write full 28-bits
-    write16(freqReg, MSB_14(newFreq));
-    write16(freqReg, LSB_14(newFreq));
+    /* Write full 28-bits (requires two writes) */
+    ctrlData |= B28;
+    write16(CTRL_ADDR, ctrlData);
+    write16(_registers[reg].addr, LSB_14(newFreq));
+    write16(_registers[reg].addr, MSB_14(newFreq));
   }
+
+  write16(CTRL_ADDR, _registers[CTRL].data16); // restore CTRL register
 
   SPI.endTransaction();
 
   // Store the new frequency
-  _freq[_curFreqReg] = newFreq;
+  _registers[reg].data32 = newFreq;
 
 }
 
@@ -137,8 +145,8 @@ void AD9833::frequency(float freq, uint8_t freqReg) {
  * @param phase
  *        Frequency to set in Hz
  */
-void AD9833::phase(float p) {
-  phase(p, PHASE_ADDR(_curPhaseReg));
+void AD9833::setPhase(float phase) {
+  setPhase(phase, (_registers[CTRL].data16 & PSELECT) ? PHASE1 : PHASE0);
 }
 
 /*!
@@ -148,8 +156,9 @@ void AD9833::phase(float p) {
  * @param phaseReg
  *        Specift the phase register to write to.
  */
-void AD9833::phase(float phase, uint8_t phaseReg) {
+void AD9833::setPhase(float phase, enum RegisterName reg) {
   float rad;
+  uint16_t oldPhase = _registers[reg].data16;
   uint16_t newPhase;
 
   // Don't change if phase if phase > 360 or phase < 0
@@ -164,33 +173,33 @@ void AD9833::phase(float phase, uint8_t phaseReg) {
   newPhase = PHASE_TO_REG(rad);
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(phaseReg, (newPhase & BIT_MASK_12));
+  write16(_registers[reg].addr, (newPhase & BIT_MASK_12));
   SPI.endTransaction();
 
-  _phase[_curPhaseReg] = newPhase;
+  _registers[reg].data16 = newPhase;
 }
 
 /*!
  * @brief Switches the frequency register
  */
-void AD9833::switchFrequency() {
-  // switch the current frequency register
-  _curFreqReg = _curFreqReg ^ 1;
+void AD9833::toggleFreqReg() {
+  // toggle FSELECT
+  _registers[CTRL].data16 ^= FSELECT;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, (FSELECT(_curFreqReg)));
+  write16(CTRL_ADDR, _registers[CTRL].data16);
   SPI.endTransaction();
 }
 
 /*!
  * @brief Switches the phase register
  */
-void AD9833::switchPhase() {
-  // switch the current frequency register
-  _curPhaseReg = _curPhaseReg ^ 1;
+void AD9833::togglePhaseReg() {
+  // toggle PSELECT
+  _registers[CTRL].data16 ^= PSELECT;
 
   SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  write16(CTRL, (PSELECT(_curPhaseReg)));
+  write16(CTRL_ADDR, _registers[CTRL].data16);
   SPI.endTransaction();
 }
 
@@ -200,30 +209,34 @@ void AD9833::switchPhase() {
  *        Waveform to set
  */
  void AD9833::setWaveform(Waveform state) {
+  uint16_t data = _registers[CTRL].data16;
   if (state == _curWave) {
     return;
   }
 
-  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
-  
   switch(state) {
     case SINE:
-      write16(CTRL, MODE(SINE));
+      data &= ~OPBITEN & ~MODE;
       break;
     case TRIANGLE:
-      write16(CTRL, MODE(TRIANGLE));
+      data &= ~OPBITEN;
+      data |= MODE;
       break;
     case SQUARE_DIV2:
-      write16(CTRL, OPBITEN);
+      data &= ~DIV2 & ~MODE;
+      data |= OPBITEN;
       break;
     case SQUARE:
-      write16(CTRL, OPBITEN | DIV2);
+      data &= ~MODE;
+      data |= OPBITEN | DIV2;
       break;
   }
-
-  _curWave = state;
-
+  SPI.beginTransaction(SPI_SETTINGS(_spiFreq));
+  write16(CTRL_ADDR, data);
   SPI.endTransaction();
+
+  _registers[CTRL].data16 = data;
+  _curWave = state;
  }
 
 /*!
@@ -233,8 +246,8 @@ void AD9833::switchPhase() {
  * @param data
  *        data to write to register
  */
-void AD9833::write16(uint8_t reg, uint16_t data) {
+void AD9833::write16(uint16_t addr, uint16_t data) {
   digitalWrite(_fsync, LOW);
-  SPI.transfer16((reg << 13) | data);
+  SPI.transfer16(addr | data);
   digitalWrite(_fsync, HIGH);
 }
