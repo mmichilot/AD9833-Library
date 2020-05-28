@@ -1,5 +1,7 @@
 ---
-layout: default
+layout: doc
+title: AD9833-Library
+group: docs
 ---
 # AD9833 Library for Arduino
 
