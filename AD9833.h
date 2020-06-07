@@ -100,11 +100,11 @@ enum Waveform {
     uint8_t _fsync;
 
     // AD9833 Registers
-    struct Register _registers[5] = {{CTRL_ADDR, 0},
-                                     {FREQ0_ADDR, 0},
-                                     {FREQ1_ADDR, 0},
-                                     {PHASE0_ADDR, 0},
-                                     {PHASE1_ADDR, 0}};
+    struct Register _registers[5] = {{CTRL_ADDR},
+                                     {FREQ0_ADDR},
+                                     {FREQ1_ADDR},
+                                     {PHASE0_ADDR},
+                                     {PHASE1_ADDR}};
 
     // Keep track of the current waveform
     enum Waveform _curWave = SINE;
